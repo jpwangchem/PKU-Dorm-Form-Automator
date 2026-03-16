@@ -58,7 +58,7 @@ The tool doesn't just copy-paste; it "cleans" the data using the following logic
 ├── main.ipynb           # Main script with Regex and Docx logic
 ├── data.xlsx            # Your source data (Keep this private!)
 ├── doc.docx             # The Word template with 2+ tables
-└── 住宿凭单/              # Default output directory (Auto-created)
+└── 住宿凭单/              # Default output directory (Auto-created after run the code)
 
 ```
 
