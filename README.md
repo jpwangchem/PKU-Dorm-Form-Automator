@@ -1,70 +1,69 @@
-# Dormitory Form Automator (Batch Fill)
+# 🏢 PKU Dormitory Form Automator
 
-A Python-based automation tool designed to batch-fill student accommodation forms from Excel data into Word templates. It is specifically optimized for templates containing **two forms per page** (e.g., for A4 printing efficiency).
+An automation tool designed to batch-process student dormitory data from Excel and generate standardized Word vouchers. Perfect for administrative staff managing dormitory check-ins at Peking university.
 
-## ✨ Key Features
+---
 
-* **Batch Processing**: Seamlessly handle hundreds of student records in seconds.
-* **Smart Pairing**: Automatically groups two students into a single Word document to save paper and printing costs.
-* **Data Cleaning**: Built-in Regex logic to extract clean numbers for Buildings, Rooms, and Bed slots from messy input strings.
-* **Style Retention**: Preserves table formatting, including font size (10.5 pt) and paragraph alignment (Left).
-* **Robust Error Handling**: Automatically skips incomplete records and provides detailed error logs.
+## 🌟 Key Features
 
-## 🛠️ Requirements
+* **Smart Pairing**: Automatically groups two students into a single Word document to optimize A4 printing.
+* **Robust Regex Cleaning**:
+* **Buildings**: Extracts digits and immediate suffixes (e.g., "燕园1楼" -> "1楼").
+* **Rooms/Beds**: Aggressively strips non-numeric characters (e.g., "3号床" -> "3") for a cleaner look on the voucher.
 
-Ensure you have Python 3.x installed. You will need the following libraries:
+
+* **Literal Keyword Matching**: Specifically tuned to match template keywords like `姓  名` and `楼  号` (including the double spaces often found in Chinese forms).
+* **Intelligent Naming**: Output files are named using the format `Student1ID-Name&Student2ID-Name.docx`, making them easy to search and distribute.
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+
+Ensure you have Python 3.12 installed:
 
 ```bash
 pip install pandas python-docx openpyxl
 
 ```
 
-## 📂 Project Structure
+### 2. Configuration
 
-```text
-.
-├── main.py              # Main execution script
-├── data_sample.xlsx     # Example Excel file (Template)
-├── doc.docx             # Word template file
-└── Output/              # Directory where generated files are saved
+* **Excel (`data.xlsx`)**: Must contain columns: `学工号`, `姓名`, `楼栋`, `房间`, `床位`.
+* **Template (`doc.docx`)**: Please fill in the `院系`, `年级`, `经办人`, `时间` before run the python code.
 
-```
 
-## 📖 Usage Guide
 
-### 1. Prepare your Excel (`data.xlsx`)
-
-Your Excel file must contain the following columns:
-
-* `学工号` (Student ID)
-* `姓名` (Name)
-* `楼栋` (Building)
-* `房间` (Room)
-* `床位` (Bed Number)
-
-### 2. Configure the Word Template (`doc.docx`)
-
-* The template must contain **at least two tables**.
-* The script searches for specific keywords within the cells: `姓  名`, `楼  号`, `房间号`, and `床位号`.
-* *Note: Ensure the spacing in your template matches the strings in the script.*
-
-### 3. Run the Script
-
-Execute the following command in your terminal:
+### 3. Execution
 
 ```bash
 python main.py
 
 ```
 
-## ⚙️ How it Works
+## 📊 Data Mapping & Processing
 
-1. **Grouping**: The script reads the Excel rows and groups them in pairs ($i, i+1$).
-2. **Cleaning**: Functions like `clean_building_number` use Regular Expressions to strip unnecessary text (e.g., converting "Building No. 5" to "5").
-3. **Filling**: It locates the target cells in the Word tables and injects the cleaned data while maintaining the specified font style.
+The tool doesn't just copy-paste; it "cleans" the data using the following logic:
 
-## ⚠️ Privacy & Security
+| Source (Excel) | Target (Word) | Regex Logic | Result Example |
+| --- | --- | --- | --- |
+| **姓名** | `姓  名` | String Strip | " 张三 " → "张三" |
+| **楼栋** | `楼  号` | `(\d+[^\d\s]?)` | "燕园1楼" → "1楼" |
+| **房间** | `房间号` | `\d+` | "102室" → "102" |
+| **床位** | `床位号` | `\d+` | "3号床" → "3" |
 
-* **Do NOT upload `data.xlsx**` if it contains real student information (IDs, names, etc.).
-* It is highly recommended to use the provided `data_sample.xlsx` for testing purposes.
-* The `Output/` directory is ignored by default to prevent accidental data leaks.
+## 📂 Project Structure
+
+```text
+.
+├── main.ipynb           # Main script with Regex and Docx logic
+├── data.xlsx            # Your source data (Keep this private!)
+├── doc.docx             # The Word template with 2+ tables
+└── 住宿凭单/              # Default output directory (Auto-created)
+
+```
+
+## ⚙️ Technical Implementation Details
+
+* **Pairing Logic**: Uses Python list slicing `[df.iloc[i:i + 2]]` to iterate through the Excel rows in steps of 2.
+* **Font Control**: Forcibly sets the injected text to **10.5pt** (Size 5 in Chinese font systems) and **Left Alignment** to ensure the voucher looks professional regardless of Excel's original formatting.
+* **Data Validation**: Checks for `NaN` or empty strings in required fields and skips the entire pair if any critical data is missing to prevent half-filled vouchers.
